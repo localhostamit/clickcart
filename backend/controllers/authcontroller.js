@@ -9,8 +9,8 @@ if (!name || !email || !password){
         message : "please enter the all requires fields "
     });
 }
-const existingUser = await User.findone({
-    email : email 
+const existingUser = await User.findOne({
+    email : email
 });
 
 if (existingUser) {
@@ -20,11 +20,11 @@ if (existingUser) {
     });
 }
 const salt = await bcrypt.genSalt(10);
-const hashedpassword = await bcrypt.hash(password, salt);
+const hashedPassword = await bcrypt.hash(password, salt);
 const user = await User.create({
     name,
-    email,
-    password : hashedpassword 
+    email : email,
+    password : hashedPassword 
 });
 return res.status(201).json({
     success : true,
