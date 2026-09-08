@@ -9,8 +9,8 @@ BACKEND
 [✓] Login
 [✓] JWT generation
 [✓] JWT middleware
-[ ] Profile
-[ ] Update profile
+[✓] Profile
+[✓] Update profile
 [ ] Change password
 [ ] Category CRUD
 [ ] Product CRUD
