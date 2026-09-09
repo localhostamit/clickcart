@@ -1,5 +1,5 @@
 const User = require("../models/User");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 exports.getProfile = async (req , res) =>{
     try{
         const user = await User.findById(req.user.userId)
@@ -94,7 +94,7 @@ exports.changePassword = async (req,res) => {
 
        
         const salt = await bcrypt.genSalt(10);
-         const hashedPassword = await bcrypt.hash(password, salt);
+         const hashedPassword = await bcrypt.hash(newPassword, salt);
     user.password = hashedPassword;
     await user.save()
     return res.status(200).json({

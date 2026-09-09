@@ -11,7 +11,7 @@ BACKEND
 [✓] JWT middleware
 [✓] Profile
 [✓] Update profile
-[ ] Change password
+[✓] Change password
 [ ] Category CRUD
 [ ] Product CRUD
 [ ] Admin middleware
@@ -45,7 +45,7 @@ TESTING
 [✓] Register in Postman
 [✓] Login in Postman
 [✓] JWT tested
-[ ] Profile tested
+[✓] Profile tested
 [ ] Products tested
 [ ] Cart tested
 [ ] Orders tested
