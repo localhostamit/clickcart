@@ -1,7 +1,20 @@
-import mongoose from "mongoose"
-const CategoriesSchema = new mongoose.Schema({
-    name : String,
-    description : String,
-    image : String 
+const mongoose = require("mongoose");
+
+const categorySchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    description: {
+        type: String,
+        trim: true
+    },
+    image: {
+        type: String
+    }
 });
 
+const Category = mongoose.model("Category", categorySchema);
+
+module.exports = Category;
