@@ -31,3 +31,21 @@ exports.createCategory = async (req , res) =>
         });
     }
 }
+ exports.getCategories = async (req , res ) =>
+ {
+    try{
+ 
+        const categories = await Category.find();
+
+        return res.status(200).json({
+            success: true,
+            categories
+        });
+    }
+    catch(error){
+        return res.status(500).json({
+            success:true,
+            message : error.message
+        });
+    }
+ }
