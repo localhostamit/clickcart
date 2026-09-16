@@ -12,7 +12,7 @@ BACKEND
 [✓] Profile
 [✓] Update profile
 [✓] Change password
-[ ] Category CRUD
+[✓] Category CRUD
 [ ] Product CRUD
 [ ] Admin middleware
 [ ] Cart
