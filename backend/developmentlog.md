@@ -13,7 +13,7 @@ BACKEND
 [✓] Update profile
 [✓] Change password
 [✓] Category CRUD
-[ ] Product CRUD
+[✓] Product CRUD
 [ ] Admin middleware
 [ ] Cart
 [ ] Orders
@@ -46,6 +46,6 @@ TESTING
 [✓] Login in Postman
 [✓] JWT tested
 [✓] Profile tested
-[ ] Products tested
+[✓] Products tested
 [ ] Cart tested
 [ ] Orders tested
