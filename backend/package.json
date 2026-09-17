@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "dev": "nodemon server.js"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "body-parser": "^2.3.0",
@@ -9,6 +12,7 @@
     "mongoose": "^8.24.2"
   },
   "devDependencies": {
+    "n": "^10.2.0",
     "nodemon": "^3.1.14"
   }
 }
