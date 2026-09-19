@@ -3,7 +3,6 @@ const router = express.Router();
 const {register,login} = require("../controllers/authcontroller");
 const {getProfile,updateProfile , changePassword} = require("../controllers/usercontroller");
 const auth = require("../middleware/auth"); 
-
 router.post("/register", register);
 router.post("/login", login);
 router.get("/profile", auth, getProfile);
