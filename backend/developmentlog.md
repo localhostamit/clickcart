@@ -14,7 +14,7 @@ BACKEND
 [✓] Change password
 [✓] Category CRUD
 [✓] Product CRUD
-[ ] Admin middleware
+[✓] Admin middleware
 [ ] Cart
 [ ] Orders
 

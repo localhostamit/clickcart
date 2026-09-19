@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 const OrderSchema = new mongoose.Schema({
        user : {
            
@@ -18,6 +18,7 @@ const OrderSchema = new mongoose.Schema({
    totalPrice: Number,
     status:{
         type: String,
-        default : pending
+        default : "pending"
     }
 });
+module.exports = mongoose.model("Order", OrderSchema);
