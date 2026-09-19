@@ -19,6 +19,12 @@ app.use("/api/auth",authRoutes);
 app.use("/api/categories" , categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
+app.get("/", (req, res) => {
+    res.json({
+        success: true,
+        message: "ClickCart API is running"
+    });
+});
 app.listen(PORT, () => {
     console.log(`server is running at the port ${PORT}`);
 });
