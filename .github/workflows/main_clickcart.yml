@@ -59,6 +59,7 @@ jobs:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_9F5ECDC9E79946FE86E70F85DF09EF51 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_69374163FB934159B8008598DFB3C4BD }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_74567BA290764E5FB1C9DB1B2EF49E00 }}
+        
           - name: Configure App Settings
         uses: azure/appservice-settings@v1
         with:
