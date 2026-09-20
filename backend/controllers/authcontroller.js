@@ -47,52 +47,57 @@ role: user.role
 
 
 };
-exports.login =async (req,res) => {
-    try{
-        const {email , password } = req.body;
-        if (!email || !password){
+exports.login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
             return res.status(400).json({
-                success :false,
-                message : "Email and password are required"
+                success: false,
+                message: "Email and password are required"
             });
         }
-        const user = await User.findOne({email});
-   if(!user) {
-    return res.status(401).json({
-        success : false,
-        message : "Invalid email or password"
 
-    });
+        const user = await User.findOne({ email });
 
-   }
-   const isPasswordCorrect = await bcrypt.compare(
-    password,
-    user.password
-   );
-   if (!isPasswordCorrect){
-    return res.status(401).json({
-        success: false,
-        message : "Invalid email or password"
-    });
-   } 
-   const token = jwt.sign(
-{userId : user._id},
-process.env.JWT_SECRET,
-{expiresIn: "7d"}
-   );
-return res.status(200).json({
-    success : true,
-    message: "login successful",
-    token,
-    user: {
-        id : user._id,
-        name: user.name,
-        email: user.email
-    }
-});
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid email or password"
+            });
+        }
 
-    }
-catch (error) {
+        const isPasswordCorrect = await bcrypt.compare(
+            password,
+            user.password
+        );
+
+        if (!isPasswordCorrect) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid email or password"
+            });
+        }
+
+        const token = jwt.sign(
+            { userId: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" }
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "login successful",
+            token,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            }
+        });
+
+    } catch (error) {
         return res.status(500).json({
             success: false,
             message: error.message
