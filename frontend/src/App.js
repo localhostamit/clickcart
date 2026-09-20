@@ -8,6 +8,7 @@ import Login from "./Pages/Login";
 import Register from "./Pages/Register";
 import About from "./Pages/About";
 import Contact from "./Pages/Contact";
+import Orders from "./Pages/Orders";
 import Wishlist from "./Pages/Wishlist";
 import Checkout from "./Pages/Checkout";
 import OrderSuccess from "./Pages/OrderSuccess";
@@ -37,6 +38,7 @@ function App() {
       <Route path="/contact" element={<Contact />} />
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/order-success" element={<OrderSuccess />}/>
+      <Route path="/orders" element={<Orders />} />
 
  {/* ================= ADMIN ================= */}
       <Route path="/admin/login" element={<AdminLogin />}/>

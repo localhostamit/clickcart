@@ -1,30 +1,60 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import API_URL from "../services/api";
 function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const handleLogin = (e) => {
-    e.preventDefault();
-    setError("");
-    if (!email || !password) {
-      setError("Please fill all fields.");
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setError("");
+
+  if (!email || !password) {
+    setError("Please fill all fields.");
+    return;
+  }
+
+  if (!email.includes("@")) {
+    setError("Please enter a valid email.");
+    return;
+  }
+
+  if (password.length < 6) {
+    setError("Password must be at least 6 characters.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/api/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      setError(data.message || "Login failed.");
       return;
     }
-    if (!email.includes("@")) {
-      setError("Please enter a valid email.");
-      return;
-    }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-    // Demo login
-    alert("Login successful!");
+
+    // Save JWT and user information
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
     navigate("/");
-  };
+  } catch (error) {
+    console.error("Login error:", error);
+    setError("Unable to connect to server.");
+  }
+};
   return (
     <section className="bg-light py-5">
       <div className="container">

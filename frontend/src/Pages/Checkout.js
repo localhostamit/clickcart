@@ -1,11 +1,49 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../CONTEXT/CartContext";
+import API_URL from "../services/api";
+import { useState } from "react";
 function Checkout() {
-const {cartItems,clearCart,} = useCart();
+  const { cartItems } = useCart();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const total = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+  const handlePlaceOrder = async () => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    alert("Please login before placing an order.");
+    navigate("/login");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const response = await fetch(`${API_URL}/api/orders`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      alert(data.message || "Failed to place order.");
+      return;
+    }
+
+    navigate("/order-success");
+  } catch (error) {
+    console.error("Order error:", error);
+    alert("Unable to place order. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <>
       {/* Page Header */}
@@ -163,14 +201,15 @@ const {cartItems,clearCart,} = useCart();
                       </strong>
                     </div>
                     {/* Place Order */}
-                 <Link
-  to="/order-success"
+                <button
+  type="button"
   className="btn btn-primary w-100 btn-lg"
-  onClick={clearCart}
+  onClick={handlePlaceOrder}
+  disabled={loading}
 >
   <i className="bi bi-check-circle me-2"></i>
-  Place Order
-</Link>
+  {loading ? "Placing Order..." : "Place Order"}
+</button>
                   </div>
                 </div>
               </div>

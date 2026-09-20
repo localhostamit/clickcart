@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import API_URL from "../services/api";
+
 function Register() {
   const navigate = useNavigate();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -10,34 +13,62 @@ function Register() {
   const [showConfirmPassword, setShowConfirmPassword] =
     useState(false);
   const [error, setError] = useState("");
-  const handleRegister = (e) => {
+
+  const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
-    if (
-      !name ||
-      !email ||
-      !password ||
-      !confirmPassword
-    ) {
+
+    if (!name || !email || !password || !confirmPassword) {
       setError("Please fill all fields.");
       return;
     }
+
     if (!email.includes("@")) {
       setError("Please enter a valid email.");
       return;
     }
+
     if (password.length < 6) {
       setError("Password must be at least 6 characters.");
       return;
     }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
-    // Demo registration
-    alert("Account created successfully!");
-    navigate("/login");
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/auth/register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!data.success) {
+        setError(data.message || "Registration failed.");
+        return;
+      }
+
+      alert("Account created successfully!");
+      navigate("/login");
+    } catch (error) {
+      console.error("Registration error:", error);
+      setError("Unable to connect to server.");
+    }
   };
+
   return (
     <section className="bg-light py-5">
       <div className="container">
@@ -45,26 +76,33 @@ function Register() {
           <div className="col-md-7 col-lg-6">
             <div className="card border-0 shadow-sm">
               <div className="card-body p-4 p-md-5">
+
                 <div className="text-center mb-4">
                   <i className="bi bi-person-plus-fill display-4 text-primary"></i>
+
                   <h2 className="fw-bold mt-3">
                     Create Account
                   </h2>
+
                   <p className="text-muted">
                     Join ClickCart today
                   </p>
                 </div>
+
                 {error && (
                   <div className="alert alert-danger">
                     {error}
                   </div>
                 )}
+
                 <form onSubmit={handleRegister}>
+
                   {/* Name */}
                   <div className="mb-3">
                     <label className="form-label fw-semibold">
                       Full Name
                     </label>
+
                     <input
                       type="text"
                       className="form-control"
@@ -75,11 +113,13 @@ function Register() {
                       }
                     />
                   </div>
+
                   {/* Email */}
                   <div className="mb-3">
                     <label className="form-label fw-semibold">
                       Email Address
                     </label>
+
                     <input
                       type="email"
                       className="form-control"
@@ -90,11 +130,13 @@ function Register() {
                       }
                     />
                   </div>
+
                   {/* Password */}
                   <div className="mb-3">
                     <label className="form-label fw-semibold">
                       Password
                     </label>
+
                     <div className="input-group">
                       <input
                         type={
@@ -109,6 +151,7 @@ function Register() {
                           setPassword(e.target.value)
                         }
                       />
+
                       <button
                         type="button"
                         className="btn btn-outline-secondary"
@@ -126,11 +169,13 @@ function Register() {
                       </button>
                     </div>
                   </div>
+
                   {/* Confirm Password */}
                   <div className="mb-4">
                     <label className="form-label fw-semibold">
                       Confirm Password
                     </label>
+
                     <div className="input-group">
                       <input
                         type={
@@ -145,6 +190,7 @@ function Register() {
                           setConfirmPassword(e.target.value)
                         }
                       />
+
                       <button
                         type="button"
                         className="btn btn-outline-secondary"
@@ -164,6 +210,7 @@ function Register() {
                       </button>
                     </div>
                   </div>
+
                   {/* Register */}
                   <button
                     type="submit"
@@ -171,11 +218,14 @@ function Register() {
                   >
                     Create Account
                   </button>
+
                 </form>
+
                 <div className="text-center mt-4">
                   <p className="text-muted mb-0">
                     Already have an account?
                   </p>
+
                   <Link
                     to="/login"
                     className="text-decoration-none fw-semibold"
@@ -183,6 +233,7 @@ function Register() {
                     Login Here
                   </Link>
                 </div>
+
               </div>
             </div>
           </div>
@@ -191,4 +242,5 @@ function Register() {
     </section>
   );
 }
+
 export default Register;
