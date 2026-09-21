@@ -245,6 +245,6 @@ module.exports = {
     getMyOrders,
     getOrder,
     updateOrderStatus,
-    cancelOrder
+    cancelOrder,
     getAllOrders
 };

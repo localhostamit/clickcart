@@ -15,7 +15,7 @@ getAllOrders
 
 router.post("/", auth, createOrder);
 router.get("/", auth, getMyOrders);
-router.get("/all", auth, isAdmin, getAllOrders);
+router.get("/admin/all", auth, isAdmin, getAllOrders);
 router.get("/:id", auth, getOrder);
 
 router.put("/:id/status", auth, isAdmin, updateOrderStatus);
