@@ -220,11 +220,31 @@ const cancelOrder = async (req, res) => {
         });
     }
 };
+const getAllOrders = async (req, res) => {
+    try {
+        const orders = await Order.find()
+            .populate("user", "name email")
+            .populate("products.product", "name price image")
+            .sort({ createdAt: -1 });
 
+        return res.status(200).json({
+            success: true,
+            count: orders.length,
+            orders
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
 module.exports = {
     createOrder,
     getMyOrders,
     getOrder,
     updateOrderStatus,
     cancelOrder
+    getAllOrders
 };

@@ -1,14 +1,43 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import ProductData from "../Components/PRODUCT/ProductData";
 import AdminSidebar from "../Components/Admin/AdminSidebar";
+import API_URL from "../services/api";
 
 function AdminProducts() {
-  const [products, setProducts] = useState(ProductData);
+  const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const handleDelete = (id) => {
+  // Fetch products from backend
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch(`${API_URL}/api/products`);
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Failed to fetch products.");
+      }
+
+      setProducts(data.products || []);
+    } catch (error) {
+      console.error("Fetch products error:", error);
+      setError("Unable to load products.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  // Delete product
+  const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this product?"
     );
@@ -17,30 +46,64 @@ function AdminProducts() {
       return;
     }
 
-    setProducts((items) =>
-      items.filter((product) => product.id !== id)
-    );
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(`${API_URL}/api/products/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        alert(data.message || "Failed to delete product.");
+        return;
+      }
+
+      // Remove deleted product from UI
+      setProducts((items) =>
+        items.filter((product) => product._id !== id)
+      );
+
+      alert("Product deleted successfully.");
+    } catch (error) {
+      console.error("Delete product error:", error);
+      alert("Unable to delete product.");
+    }
   };
 
+  // Create category list from actual products
   const categories = [
     "All",
-    ...new Set(products.map((product) => product.category)),
+    ...new Set(
+      products
+        .map((product) => product.category?.name || product.category)
+        .filter(Boolean)
+    ),
   ];
 
+  // Search + category filter
   const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.title
+    const productName = product.name || "";
+
+    const productCategory =
+      product.category?.name || product.category || "";
+
+    const matchesSearch = productName
       .toLowerCase()
       .includes(search.toLowerCase());
 
     const matchesCategory =
-      category === "All" || product.category === category;
+      category === "All" || productCategory === category;
 
     return matchesSearch && matchesCategory;
   });
 
   return (
     <div className="container-fluid">
-
       <div className="row">
 
         {/* Sidebar */}
@@ -76,10 +139,18 @@ function AdminProducts() {
 
             </div>
 
+            {/* Error */}
+            {error && (
+              <div className="alert alert-danger">
+                <i className="bi bi-exclamation-triangle me-2"></i>
+                {error}
+              </div>
+            )}
 
             {/* Stats */}
             <div className="row g-3 mb-4">
 
+              {/* Total Products */}
               <div className="col-md-4">
 
                 <div className="card border-0 shadow-sm">
@@ -94,7 +165,7 @@ function AdminProducts() {
                         </p>
 
                         <h4 className="fw-bold mb-0">
-                          {products.length}
+                          {loading ? "..." : products.length}
                         </h4>
                       </div>
 
@@ -108,7 +179,7 @@ function AdminProducts() {
 
               </div>
 
-
+              {/* Categories */}
               <div className="col-md-4">
 
                 <div className="card border-0 shadow-sm">
@@ -123,7 +194,7 @@ function AdminProducts() {
                         </p>
 
                         <h4 className="fw-bold mb-0">
-                          {categories.length - 1}
+                          {loading ? "..." : categories.length - 1}
                         </h4>
                       </div>
 
@@ -137,7 +208,7 @@ function AdminProducts() {
 
               </div>
 
-
+              {/* Showing */}
               <div className="col-md-4">
 
                 <div className="card border-0 shadow-sm">
@@ -152,7 +223,7 @@ function AdminProducts() {
                         </p>
 
                         <h4 className="fw-bold mb-0">
-                          {filteredProducts.length}
+                          {loading ? "..." : filteredProducts.length}
                         </h4>
                       </div>
 
@@ -167,7 +238,6 @@ function AdminProducts() {
               </div>
 
             </div>
-
 
             {/* Search & Filter */}
             <div className="card border-0 shadow-sm mb-4">
@@ -198,7 +268,6 @@ function AdminProducts() {
                     </div>
 
                   </div>
-
 
                   {/* Category */}
                   <div className="col-md-4">
@@ -232,202 +301,251 @@ function AdminProducts() {
 
             </div>
 
-
             {/* Product Table */}
             <div className="card border-0 shadow-sm">
 
               <div className="card-body p-0">
 
-                <div className="table-responsive">
+                {loading ? (
 
-                  <table className="table table-hover align-middle mb-0">
+                  <div className="text-center py-5">
 
-                    <thead className="table-light">
+                    <div
+                      className="spinner-border text-primary"
+                      role="status"
+                    ></div>
 
-                      <tr>
+                    <p className="text-muted mt-3 mb-0">
+                      Loading products...
+                    </p>
 
-                        <th className="px-4">
-                          Image
-                        </th>
+                  </div>
 
-                        <th>
-                          Product
-                        </th>
+                ) : (
 
-                        <th>
-                          Category
-                        </th>
+                  <div className="table-responsive">
 
-                        <th>
-                          Price
-                        </th>
+                    <table className="table table-hover align-middle mb-0">
 
-                        <th>
-                          Stock
-                        </th>
+                      <thead className="table-light">
 
-                        <th>
-                          Status
-                        </th>
+                        <tr>
 
-                        <th>
-                          Action
-                        </th>
+                          <th className="px-4">
+                            Image
+                          </th>
 
-                      </tr>
+                          <th>
+                            Product
+                          </th>
 
-                    </thead>
+                          <th>
+                            Category
+                          </th>
 
-                    <tbody>
+                          <th>
+                            Price
+                          </th>
 
-                      {filteredProducts.length > 0 ? (
+                          <th>
+                            Stock
+                          </th>
 
-                        filteredProducts.map((product) => (
+                          <th>
+                            Status
+                          </th>
 
-                          <tr key={product.id}>
+                          <th>
+                            Action
+                          </th>
 
-                            {/* Image */}
-                            <td className="px-4">
+                        </tr>
 
-                              <div
-                                className="bg-light rounded d-flex align-items-center justify-content-center"
-                                style={{
-                                  width: "65px",
-                                  height: "65px",
-                                }}
-                              >
+                      </thead>
 
-                                <img
-                                  src={product.image}
-                                  alt={product.title}
-                                  style={{
-                                    width: "55px",
-                                    height: "55px",
-                                    objectFit: "contain",
-                                  }}
-                                />
+                      <tbody>
 
-                              </div>
+                        {filteredProducts.length > 0 ? (
 
-                            </td>
+                          filteredProducts.map((product) => {
 
+                            const productCategory =
+                              product.category?.name ||
+                              product.category ||
+                              "Uncategorized";
 
-                            {/* Product */}
-                            <td>
+                            const stock =
+                              Number(product.stock) || 0;
 
-                              <strong>
-                                {product.title}
-                              </strong>
+                            return (
+                              <tr key={product._id}>
 
-                              <br />
+                                {/* Image */}
+                                <td className="px-4">
 
-                              <small className="text-muted">
-                                ID: #{product.id}
-                              </small>
+                                  <div
+                                    className="bg-light rounded d-flex align-items-center justify-content-center"
+                                    style={{
+                                      width: "65px",
+                                      height: "65px",
+                                    }}
+                                  >
 
-                            </td>
+                                    {product.image ? (
 
+                                      <img
+                                        src={product.image}
+                                        alt={product.name}
+                                        style={{
+                                          width: "55px",
+                                          height: "55px",
+                                          objectFit: "contain",
+                                        }}
+                                      />
 
-                            {/* Category */}
-                            <td>
+                                    ) : (
 
-                              <span className="badge bg-primary">
-                                {product.category}
-                              </span>
+                                      <i className="bi bi-box-seam fs-3 text-muted"></i>
 
-                            </td>
+                                    )}
 
+                                  </div>
 
-                            {/* Price */}
-                            <td>
+                                </td>
 
-                              <strong>
-                                ₹{product.price}
-                              </strong>
+                                {/* Product */}
+                                <td>
 
-                            </td>
+                                  <strong>
+                                    {product.name}
+                                  </strong>
 
+                                  <br />
 
-                            {/* Stock */}
-                            <td>
+                                  <small className="text-muted">
+                                    ID: #
+                                    {product._id
+                                      ?.slice(-6)
+                                      .toUpperCase()}
+                                  </small>
 
-                              <span className="text-muted">
-                                Available
-                              </span>
+                                </td>
 
-                            </td>
+                                {/* Category */}
+                                <td>
 
+                                  <span className="badge bg-primary">
+                                    {productCategory}
+                                  </span>
 
-                            {/* Status */}
-                            <td>
+                                </td>
 
-                              <span className="badge bg-success">
-                                Active
-                              </span>
+                                {/* Price */}
+                                <td>
 
-                            </td>
+                                  <strong>
+                                    ₹{product.price}
+                                  </strong>
 
+                                </td>
 
-                            {/* Actions */}
-                            <td>
+                                {/* Stock */}
+                                <td>
 
-                              <Link
-                                to={`/admin/products/edit/${product.id}`}
-                                className="btn btn-sm btn-outline-primary me-2"
-                                title="Edit Product"
-                              >
-                                <i className="bi bi-pencil"></i>
-                              </Link>
+                                  {stock > 0 ? (
 
-                              <button
-                                onClick={() =>
-                                  handleDelete(product.id)
-                                }
-                                className="btn btn-sm btn-outline-danger"
-                                title="Delete Product"
-                              >
-                                <i className="bi bi-trash"></i>
-                              </button>
+                                    <span className="text-success">
+                                      {stock} available
+                                    </span>
+
+                                  ) : (
+
+                                    <span className="text-danger">
+                                      Out of stock
+                                    </span>
+
+                                  )}
+
+                                </td>
+
+                                {/* Status */}
+                                <td>
+
+                                  <span
+                                    className={
+                                      stock > 0
+                                        ? "badge bg-success"
+                                        : "badge bg-danger"
+                                    }
+                                  >
+                                    {stock > 0
+                                      ? "Active"
+                                      : "Out of Stock"}
+                                  </span>
+
+                                </td>
+
+                                {/* Actions */}
+                                <td>
+
+                                  <Link
+                                    to={`/admin/products/edit/${product._id}`}
+                                    className="btn btn-sm btn-outline-primary me-2"
+                                    title="Edit Product"
+                                  >
+                                    <i className="bi bi-pencil"></i>
+                                  </Link>
+
+                                  <button
+                                    onClick={() =>
+                                      handleDelete(product._id)
+                                    }
+                                    className="btn btn-sm btn-outline-danger"
+                                    title="Delete Product"
+                                  >
+                                    <i className="bi bi-trash"></i>
+                                  </button>
+
+                                </td>
+
+                              </tr>
+                            );
+                          })
+
+                        ) : (
+
+                          <tr>
+
+                            <td
+                              colSpan="7"
+                              className="text-center py-5"
+                            >
+
+                              <i className="bi bi-search fs-1 text-muted"></i>
+
+                              <h5 className="mt-3">
+                                No Products Found
+                              </h5>
+
+                              <p className="text-muted mb-0">
+                                Try changing your search or category filter.
+                              </p>
 
                             </td>
 
                           </tr>
 
-                        ))
+                        )}
 
-                      ) : (
+                      </tbody>
 
-                        <tr>
+                    </table>
 
-                          <td
-                            colSpan="7"
-                            className="text-center py-5"
-                          >
+                  </div>
 
-                            <i className="bi bi-search fs-1 text-muted"></i>
-
-                            <h5 className="mt-3">
-                              No Products Found
-                            </h5>
-
-                            <p className="text-muted mb-0">
-                              Try changing your search or category filter.
-                            </p>
-
-                          </td>
-
-                        </tr>
-
-                      )}
-
-                    </tbody>
-
-                  </table>
-
-                </div>
+                )}
 
               </div>
-
 
               {/* Footer */}
               <div className="card-footer bg-white border-0">
@@ -454,7 +572,6 @@ function AdminProducts() {
         </div>
 
       </div>
-
     </div>
   );
 }
