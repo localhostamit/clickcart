@@ -6,7 +6,6 @@ function Products() {
     const [search, setSearch] = useState("");
     const [categories, setCategories] = useState(["All"]);
     const[products ,setProducts] = useState([]);
-    const[loading,setLoading] = useState(true);
 const [searchParams] = useSearchParams();
 const urlCategory = searchParams.get("category");
 const [category, setCategory] = useState(
@@ -55,8 +54,6 @@ useEffect(()=> {
     }
     catch(error){
       console.error("failed to fetch products",error);
-    }finally{
-      setLoading(false);
     }
   };
   fetchProducts();
