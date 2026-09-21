@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import API_URL from "../services/api";
 
 const CartContext = createContext();
@@ -26,7 +26,7 @@ export function CartProvider({ children }) {
   };
 
   // Get cart from backend
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     const token = getToken();
 
     if (!token) {
@@ -49,71 +49,71 @@ export function CartProvider({ children }) {
     } catch (error) {
       console.error("Failed to fetch cart:", error);
     }
-  };
+  }, []);
 
   // Load cart when user logs in
   useEffect(() => {
     fetchCart();
-  }, []);
+  }, [fetchCart]);
 
   // Add product
- const addToCart = async (product, quantity = 1) => {
-  const token = getToken();
+  const addToCart = async (product, quantity = 1) => {
+    const token = getToken();
 
-  if (!token) {
-    alert("Please login to add products to cart.");
-    return;
-  }
-
-  try {
-    const response = await fetch(`${API_URL}/api/cart`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        productId: product.id,
-        quantity,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!data.success) {
-      alert(data.message || "Unable to add product.");
+    if (!token) {
+      alert("Please login to add products to cart.");
       return;
     }
 
-    await fetchCart();
-  } catch (error) {
-    console.error("Add to cart error:", error);
-  }
-};
+    try {
+      const response = await fetch(`${API_URL}/api/cart`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          productId: product.id,
+          quantity,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        alert(data.message || "Unable to add product.");
+        return;
+      }
+
+      await fetchCart();
+    } catch (error) {
+      console.error("Add to cart error:", error);
+    }
+  };
 
   // Remove product
- const removeFromCart = async (id) => {
-  const token = getToken();
+  const removeFromCart = async (id) => {
+    const token = getToken();
 
-  if (!token) return;
+    if (!token) return;
 
-  try {
-    const response = await fetch(`${API_URL}/api/cart/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      const response = await fetch(`${API_URL}/api/cart/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (data.success) {
-      await fetchCart();
+      if (data.success) {
+        await fetchCart();
+      }
+    } catch (error) {
+      console.error("Remove from cart error:", error);
     }
-  } catch (error) {
-    console.error("Remove from cart error:", error);
-  }
-};
+  };
 
   // Increase quantity
   const increaseQuantity = async (id) => {
@@ -134,32 +134,32 @@ export function CartProvider({ children }) {
   };
 
   // Update quantity
- const updateQuantity = async (id, quantity) => {
-  const token = getToken();
+  const updateQuantity = async (id, quantity) => {
+    const token = getToken();
 
-  if (!token) return;
+    if (!token) return;
 
-  try {
-    const response = await fetch(`${API_URL}/api/cart/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        quantity,
-      }),
-    });
+    try {
+      const response = await fetch(`${API_URL}/api/cart/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          quantity,
+        }),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (data.success) {
-      await fetchCart();
+      if (data.success) {
+        await fetchCart();
+      }
+    } catch (error) {
+      console.error("Update cart error:", error);
     }
-  } catch (error) {
-    console.error("Update cart error:", error);
-  }
-};
+  };
 
   // Clear cart
   const clearCart = async () => {
