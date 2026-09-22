@@ -270,24 +270,7 @@ function AdminOrders() {
         order.status === "pending"
     ).length;
 
-  const shippedOrders =
-    orders.filter(
-      (order) =>
-        order.status === "shipped"
-    ).length;
-
-  const processingOrders =
-    orders.filter(
-      (order) =>
-        order.status === "processing"
-    ).length;
-
-  const cancelledOrders =
-    orders.filter(
-      (order) =>
-        order.status === "cancelled"
-    ).length;
-
+ 
   // Revenue
   const totalRevenue =
     orders.reduce(
