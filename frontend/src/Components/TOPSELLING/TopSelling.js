@@ -1,61 +1,85 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TopsellingCard from "./TopsellingCard";
-import TopsellingData from "./TopsellingData";
+import API_URL from "../../services/api";
+
 function TopSelling() {
-  const [category, setCategory] = useState("All");
-  const filteredProducts =
-    category === "All"
-      ? TopsellingData
-      : TopsellingData.filter(
-          (product) => product.category === category
+  const [product, setProduct] = useState(null);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/products`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to fetch products");
+        }
+
+        const products = data.products || data || [];
+
+        if (products.length === 0) {
+          return;
+        }
+
+        // Products that have valid stock values
+        const productsWithStock = products.filter(
+          (item) =>
+            typeof item.stock === "number"
         );
+
+        let selectedProduct;
+
+        if (productsWithStock.length > 0) {
+          // Find product with lowest stock
+          selectedProduct = productsWithStock.reduce(
+            (lowest, current) =>
+              current.stock < lowest.stock
+                ? current
+                : lowest
+          );
+        } else {
+          // Fallback: random product
+          selectedProduct =
+            products[
+              Math.floor(Math.random() * products.length)
+            ];
+        }
+
+        setProduct({
+          ...selectedProduct,
+          id: selectedProduct._id,
+          title: selectedProduct.name,
+        });
+
+      } catch (error) {
+        console.error("Top selling error:", error);
+      }
+    };
+
+    fetchProduct();
+  }, []);
+
   return (
     <section className="py-5 bg-light">
       <div className="container">
+
         <h2 className="fw-bold text-center mb-4">
           Top Selling Products
         </h2>
-        {/* Category Buttons */}
-        <div className="text-center mb-5">
-          <button
-            onClick={() => setCategory("All")}
-            className={category === "All"
-                ? "btn btn-primary me-2"
-                : "btn btn-outline-primary me-2"}>All
-          </button>
-          <button
-            onClick={() => setCategory("Electronics")}
-            className={
-              category === "Electronics"
-                ? "btn btn-primary me-2"
-                : "btn btn-outline-primary me-2"
-            }>
-            Electronics
-          </button>
-          <button
-            onClick={() => setCategory("Fashion")}
-            className={
-              category === "Fashion"
-                ? "btn btn-primary"
-                : "btn btn-outline-primary"
-            }
-          >
-            Fashion
-          </button>
-        </div>
-        {/* Products */}
+
         <div className="row g-4">
-          {filteredProducts.map((item) => (
-            <div
-              className="col-lg-3 col-md-6"
-              key={item.id}
-            >
-              <TopsellingCard item={item} />
+
+          {product && (
+            <div className="col-lg-3 col-md-6">
+              <TopsellingCard item={product} />
             </div>
-          ))}
+          )}
+
         </div>
+
       </div>
     </section>
   );
 }
+
 export default TopSelling;

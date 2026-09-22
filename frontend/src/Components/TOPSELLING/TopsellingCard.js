@@ -9,7 +9,9 @@ function TopsellingCard({ item }) {
       />
       <div className="card-body">
         <small className="text-primary">
-          {item.category}
+          {typeof item.category === "object"
+          ? item.category?.name
+          : item.category}
         </small>
         <h6 className="mt-2">
           {item.title}
